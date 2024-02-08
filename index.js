@@ -1,32 +1,34 @@
-require("fix-esm").register();
+const { doc, drive } = require("./auth/google");
+const express = require("express");
+const app = express();
+const { rowsConvertJson } = require("./converter/rows");
+const port = 3000 || process.env.PORT;
 
-const { GoogleSpreadsheet } = require("google-spreadsheet");
-const { JWT } = require("google-auth-library");
-const { google } = require("googleapis");
+const generate = require("nanoid/generate");
+const id = generate("1234567890", 5); //=> "4f90d13a42"
+console.log(id);
 
-// Service Account Auth
-const serviceAccountAuth = new JWT({
-  email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-  key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-  scopes: [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive.file",
-  ],
+app.get("/", async (req, res) => {
+  try {
+    await doc.loadInfo();
+    const sheet = doc.sheetsByTitle["assets"];
+    if (!sheet) throw "Sheet not found!";
+    const rows = await sheet.getRows();
+    if (!rows.length) throw "0 Rows";
+    console.log(rowsConvertJson(rows).find("id", "#515151"));
+    console.log(rowsConvertJson(rows).push({ id: "#41322", name: "Montana" }));
+    res.json({
+      status: true,
+      data: {
+        content: rowsConvertJson(rows).value(),
+        message: `${rows.length} Rows`,
+      },
+    });
+  } catch (error) {
+    res.json({ status: false, data: { content: null, message: error } });
+  }
 });
 
-// Drive
-const drive = google.drive({
-  version: "v3",
-  auth: serviceAccountAuth,
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
-
-// Doc
-const doc = new GoogleSpreadsheet(
-  process.env.GOOGLE_SPREADSHEET_ID,
-  serviceAccountAuth
-);
-
-(async function name() {
-  await doc.loadInfo();
-  console.log(doc.title);
-})();
