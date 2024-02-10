@@ -1,8 +1,7 @@
-exports.tab = async (sheet) => {
+exports.sheets = async (sheet) => {
   try {
     const rows = await sheet.getRows();
-    if (!rows.length) throw "0 Rows";
-    const jsonRows = rows
+    const data = rows
       .map((row) => ({
         _headerValues: row._worksheet._headerValues,
         _rawData: row._rawData,
@@ -15,59 +14,86 @@ exports.tab = async (sheet) => {
         return obj;
       });
     return {
-      value: () => {
-        return jsonRows;
-      },
-      find: (param, value) => {
+      // Create
+      create: async (id, body) => {
         try {
-          const obj = jsonRows.find((item) => item[param] === value);
-          const ind = jsonRows.findIndex((item) => item[param] === value);
-          if (!obj) throw null;
+          const find = data.find((i) => i.id === id);
+          const findName = data.find(
+            (i) => i.name.toLowerCase() === body.name.toLowerCase()
+          );
+          if (find || findName) throw "Duplicate Data!";
+          const result = await sheet.addRow({
+            id,
+            date: new Date().getTime(),
+            ...body,
+          });
+          if (!result) throw error;
           return {
-            // Value
-            value: () => {
-              return { index: ind, content: obj };
-            },
-            // Update
-            update: (body) => {
-              rows[ind].assign(body);
-              rows[ind].save().finnaly(() => {
-                return { index: ind, content: obj };
-              });
-            },
-            // Add
-            add: (body) => {
-              try {
-                if (obj) throw "Data exist!";
-                sheet.addRow(body).finnaly(() => {
-                  return "Data added!";
-                });
-              } catch (error) {
-                return error;
-              }
-            },
-            // Delete
-            delete: () => {
-              rows[ind].delete().finnaly(() => {
-                return { index: ind, content: obj };
-              });
-            },
+            status: true,
+            content: { id, date: new Date().getTime(), ...body },
           };
         } catch (error) {
-          return error;
+          return { status: false, content: error };
         }
       },
-      push: (data) => {
+      // Read
+      read: async (id) => {
+        if (id) {
+          try {
+            const find = data.find((i) => i.id === id);
+            const findIndex = data.findIndex((i) => i.id === id);
+            if (!find) throw "Data not found!";
+            return { status: true, content: { ...find, index: findIndex } };
+          } catch (error) {
+            return { status: false, content: error };
+          }
+        } else {
+          try {
+            return { status: true, content: data };
+          } catch (error) {
+            return { status: false, content: error };
+          }
+        }
+      },
+      // Update
+      update: async (id, body) => {
         try {
-          sheet.addRow(data).then(() => {
-            return "Saved!";
-          });
+          const find = data.find((i) => i.id === id);
+          const findIndex = data.findIndex((i) => i.id === id);
+          if (!find) throw "Data not found!";
+          delete body["id"];
+          rows[findIndex].assign(
+            Object.assign(find, { update: new Date().getTime(), ...body })
+          );
+          await rows[findIndex].save();
+          return {
+            status: true,
+            content: { id, update: new Date().getTime(), ...body },
+          };
         } catch (error) {
-          return error;
+          return { status: false, content: error };
+        }
+      },
+      // Delete
+      delete: async (id) => {
+        try {
+          const find = data.find((i) => i.id === id);
+          const findIndex = data.findIndex((i) => i.id === id);
+          if (!find) throw "Data not found!";
+          await rows[findIndex].delete();
+          return { status: true, content: find };
+        } catch (error) {
+          return { status: false, content: error };
         }
       },
     };
   } catch (error) {
-    return error;
+    return { status: false, content: error.message };
   }
+};
+
+exports.getDataForPage = async (page, result) => {
+  const startIndex = (page - 1) * 5;
+  const endIndex = startIndex + 5;
+  return result.content.slice(startIndex, endIndex);
 };
