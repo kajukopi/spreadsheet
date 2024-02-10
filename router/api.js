@@ -1,13 +1,15 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("express");
+const router = Router();
 const { doc, drive } = require("../auth/google");
 const generate = require("nanoid/generate");
 const { sheets, getDataForPage } = require("../converter/tab");
+
 // Get All
-router.get("/", async (req, res) => {
+router.get("/:col", async (req, res) => {
   try {
+    const col = req.params.col
     await doc.loadInfo();
-    const sheet = doc.sheetsByTitle["users"];
+    const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
     const read = rows.read();
@@ -30,10 +32,11 @@ router.get("/", async (req, res) => {
 });
 
 // Get With Id
-router.get("/:id", async (req, res) => {
+router.get("/:col/:id", async (req, res) => {
   try {
+    const col = req.params.col
     await doc.loadInfo();
-    const sheet = doc.sheetsByTitle["users"];
+    const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
     const read = rows.read(req.params.id);
@@ -45,10 +48,11 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST
-router.post("/", async (req, res) => {
+router.post("/:col", async (req, res) => {
   try {
+    const col = req.params.col
     await doc.loadInfo();
-    const sheet = doc.sheetsByTitle["users"];
+    const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
     const id = generate(
@@ -64,10 +68,11 @@ router.post("/", async (req, res) => {
 });
 
 // UPDATE
-router.put("/:id", async (req, res) => {
+router.put("/:col/:id", async (req, res) => {
   try {
+    const col = req.params.col
     await doc.loadInfo();
-    const sheet = doc.sheetsByTitle["users"];
+    const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
     const id = req.params.id;
@@ -80,10 +85,11 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:col/:id", async (req, res) => {
   try {
+    const col = req.params.col
     await doc.loadInfo();
-    const sheet = doc.sheetsByTitle["users"];
+    const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
     const id = req.params.id;

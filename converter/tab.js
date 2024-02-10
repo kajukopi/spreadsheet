@@ -22,11 +22,13 @@ exports.sheets = async (sheet) => {
             (i) => i.name.toLowerCase() === body.name.toLowerCase()
           );
           if (find || findName) throw "Duplicate Data!";
-          const result = await sheet.addRow({
+          const obj = {
             id,
-            date: new Date().getTime(),
             ...body,
-          });
+            date: new Date().getTime(),
+            update: "",
+          };
+          const result = await sheet.addRow(obj);
           if (!result) throw error;
           return {
             status: true,
@@ -62,9 +64,11 @@ exports.sheets = async (sheet) => {
           const findIndex = data.findIndex((i) => i.id === id);
           if (!find) throw "Data not found!";
           delete body["id"];
-          rows[findIndex].assign(
-            Object.assign(find, { update: new Date().getTime(), ...body })
-          );
+          const obj = Object.assign(find, {
+            ...body,
+            update: new Date().getTime(),
+          });
+          rows[findIndex].assign(obj);
           await rows[findIndex].save();
           return {
             status: true,
