@@ -1,8 +1,10 @@
 const express = require("express");
+const session = require("express-session");
 const cors = require("cors");
+const { middleWare } = require("./middleware");
+
 const app = express();
 const port = 3000 || process.env.PORT;
-
 const whitelist = ["http://localhost:3000", "https://teamkece.com"];
 const corsOptions = {
   origin: function (origin, callback) {
@@ -20,7 +22,22 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+app.use(
+  session({
+    secret: "your_secret_key",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 6 * 60 * 60 * 1000,
+    },
+  })
+);
+
+app.use(middleWare);
+
 app.use("/api", require("./router/api"));
+
+app.use("/auth", require("./router/auth"));
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

@@ -7,7 +7,7 @@ const { sheets, getDataForPage } = require("../converter/tab");
 // Get All
 router.get("/:col", async (req, res) => {
   try {
-    const col = req.params.col
+    const col = req.params.col;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
@@ -25,32 +25,32 @@ router.get("/:col", async (req, res) => {
       total_pages: totalPages,
       total_items: result.content.length,
     };
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
-    res.json(error);
+    res.status(400).json(error);
   }
 });
 
 // Get With Id
 router.get("/:col/:id", async (req, res) => {
   try {
-    const col = req.params.col
+    const col = req.params.col;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
     const read = rows.read(req.params.id);
     const result = await read;
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
-    res.json(error);
+    res.status(400).json(error);
   }
 });
 
 // POST
 router.post("/:col", async (req, res) => {
   try {
-    const col = req.params.col
+    const col = req.params.col;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
@@ -61,16 +61,16 @@ router.post("/:col", async (req, res) => {
     );
     const create = rows.create(id, req.body);
     const result = await create;
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
-    res.json(error);
+    res.status(400).json(error);
   }
 });
 
 // UPDATE
 router.put("/:col/:id", async (req, res) => {
   try {
-    const col = req.params.col
+    const col = req.params.col;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
@@ -78,16 +78,16 @@ router.put("/:col/:id", async (req, res) => {
     const id = req.params.id;
     const update = rows.update(id, req.body);
     const result = await update;
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
-    res.json(error);
+    res.status(400).json(error);
   }
 });
 
 // DELETE
 router.delete("/:col/:id", async (req, res) => {
   try {
-    const col = req.params.col
+    const col = req.params.col;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
@@ -95,9 +95,9 @@ router.delete("/:col/:id", async (req, res) => {
     const id = req.params.id;
     const del = rows.delete(id, req.body);
     const result = await del;
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
-    res.json(error);
+    res.status(400).json(error);
   }
 });
 

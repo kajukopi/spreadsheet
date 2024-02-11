@@ -1,3 +1,5 @@
+const generate = require("nanoid/generate");
+
 exports.sheets = async (sheet) => {
   try {
     const rows = await sheet.getRows();
@@ -38,12 +40,55 @@ exports.sheets = async (sheet) => {
           return { status: false, content: error };
         }
       },
+      // Create
+      customCreate: async (custom, id, body) => {
+        try {
+          const find = data.find((i) => i.id === id);
+          const findCustom = data.find(
+            (i) => i[custom].toLowerCase() === body[custom].toLowerCase()
+          );
+          if (find || findCustom) throw "Duplicate Data!";
+          const obj = {
+            id,
+            ...body,
+            date: new Date().getTime(),
+            update: "",
+          };
+          const result = await sheet.addRow(obj);
+          if (!result) throw error;
+          return {
+            status: true,
+            content: { id, date: new Date().getTime(), ...body },
+          };
+        } catch (error) {
+          return { status: false, content: error };
+        }
+      },
       // Read
       read: async (id) => {
         if (id) {
           try {
             const find = data.find((i) => i.id === id);
             const findIndex = data.findIndex((i) => i.id === id);
+            if (!find) throw "Data not found!";
+            return { status: true, content: { ...find, index: findIndex } };
+          } catch (error) {
+            return { status: false, content: error };
+          }
+        } else {
+          try {
+            return { status: true, content: data };
+          } catch (error) {
+            return { status: false, content: error };
+          }
+        }
+      },
+      // Read
+      customRead: async (custom, id) => {
+        if (id) {
+          try {
+            const find = data.find((i) => i[custom] === id);
+            const findIndex = data.findIndex((i) => i[custom] === id);
             if (!find) throw "Data not found!";
             return { status: true, content: { ...find, index: findIndex } };
           } catch (error) {
@@ -100,4 +145,9 @@ exports.getDataForPage = async (page, result) => {
   const startIndex = (page - 1) * 5;
   const endIndex = startIndex + 5;
   return result.content.slice(startIndex, endIndex);
+};
+
+exports.getId = (custom, number) => {
+  const id = generate(custom, number);
+  return id;
 };
