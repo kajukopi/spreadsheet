@@ -13,13 +13,15 @@ const serviceAccountAuth = new JWT({
 });
 
 // Drive
-exports.drive = google.drive({
+const drive = google.drive({
   version: "v3",
   auth: serviceAccountAuth,
 });
 
 // Doc
-exports.doc = new GoogleSpreadsheet(
+const doc = new GoogleSpreadsheet(
   process.env.GOOGLE_SPREADSHEET_ID,
   serviceAccountAuth
 );
+
+module.exports = { serviceAccountAuth, drive, doc };

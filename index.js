@@ -20,7 +20,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
 app.use(
   session({
@@ -38,6 +38,8 @@ app.use(middleWare);
 app.use("/api", require("./router/api"));
 
 app.use("/auth", require("./router/auth"));
+
+app.use("/upload", require("./router/upload"));
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
