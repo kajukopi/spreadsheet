@@ -1,8 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 const { doc, drive } = require("../auth/google");
-const generate = require("nanoid/generate");
-const { sheets, getDataForPage } = require("../converter/tab");
+const { sheets, getDataForPage, getId } = require("../converter/tab");
 
 // Get All
 router.get("/:col", async (req, res) => {
@@ -55,11 +54,10 @@ router.post("/:col", async (req, res) => {
     const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
-    const id = generate(
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghizklmnopqrstuvwxyz1234567890",
-      14
+    const create = rows.create(
+      col.toUpperCase() + "-" + getId("1234567890", 8),
+      req.body
     );
-    const create = rows.create(id, req.body);
     const result = await create;
     res.status(200).json(result);
   } catch (error) {

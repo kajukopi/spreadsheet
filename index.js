@@ -2,9 +2,9 @@ const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
 const { middleWare } = require("./middleware");
-
 const app = express();
 const port = 3000 || process.env.PORT;
+
 const whitelist = ["http://localhost:3000", "https://teamkece.com"];
 const corsOptions = {
   origin: function (origin, callback) {
