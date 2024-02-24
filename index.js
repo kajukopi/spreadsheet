@@ -1,7 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
-const { middleWare } = require("./middleware");
+const { isAdmin, middleWare } = require("./middleware");
 const app = express();
 const port = 3000 || process.env.PORT;
 

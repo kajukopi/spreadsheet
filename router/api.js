@@ -2,10 +2,9 @@ const { Router } = require("express");
 const router = Router();
 const { doc, drive } = require("../auth/google");
 const { sheets, getDataForPage, getId } = require("../converter/tab");
-const { middleWare, isAdmin } = require("../middleware");
 
 // Get All
-router.get("/:col", isAdmin, async (req, res) => {
+router.get("/:col", async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
@@ -31,7 +30,7 @@ router.get("/:col", isAdmin, async (req, res) => {
 });
 
 // Get With Id
-router.get("/:col/:id", isAdmin, async (req, res) => {
+router.get("/:col/:id", async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
@@ -47,7 +46,7 @@ router.get("/:col/:id", isAdmin, async (req, res) => {
 });
 
 // POST
-router.post("/:col", isAdmin, async (req, res) => {
+router.post("/:col", async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
@@ -65,7 +64,7 @@ router.post("/:col", isAdmin, async (req, res) => {
 });
 
 // UPDATE
-router.put("/:col/:id", isAdmin, async (req, res) => {
+router.put("/:col/:id", async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
@@ -82,7 +81,7 @@ router.put("/:col/:id", isAdmin, async (req, res) => {
 });
 
 // DELETE
-router.delete("/:col/:id", isAdmin, async (req, res) => {
+router.delete("/:col/:id", async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();

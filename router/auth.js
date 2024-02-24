@@ -2,7 +2,7 @@ const { Router } = require("express");
 const bcrypt = require("bcrypt");
 const { doc, drive } = require("../auth/google");
 const { sheets, getDataForPage, getId } = require("../converter/tab");
-const { checkBody } = require("../middleware");
+const { isAdmin } = require("../middleware");
 
 const router = Router();
 
