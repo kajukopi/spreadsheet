@@ -16,13 +16,30 @@ exports.sheets = async (sheet) => {
         return obj;
       });
     return {
+      // Push
+      push: async (id, body) => {
+        try {
+          const obj = {
+            id,
+            ...body,
+            date: new Date().getTime(),
+            update: "",
+          };
+          const result = await sheet.addRow(obj);
+          if (!result) throw error;
+          return {
+            status: true,
+            content: { id, date: new Date().getTime(), ...body },
+          };
+        } catch (error) {
+          return { status: false, content: error };
+        }
+      },
       // Create
       create: async (id, body) => {
         try {
           const find = data.find((i) => i.id === id);
-          const findName = data.find(
-            (i) => i.name.toLowerCase() === body.name.toLowerCase()
-          );
+          const findName = data.find((i) => i.name.toLowerCase() === body.name.toLowerCase());
           if (find || findName) throw "Duplicate Data!";
           const obj = {
             id,
@@ -44,9 +61,7 @@ exports.sheets = async (sheet) => {
       customCreate: async (custom, id, body) => {
         try {
           const find = data.find((i) => i.id === id);
-          const findCustom = data.find(
-            (i) => i[custom].toLowerCase() === body[custom].toLowerCase()
-          );
+          const findCustom = data.find((i) => i[custom].toLowerCase() === body[custom].toLowerCase());
           if (find || findCustom) throw "Duplicate Data!";
           const obj = {
             id,
@@ -72,6 +87,25 @@ exports.sheets = async (sheet) => {
             const findIndex = data.findIndex((i) => i.id === id);
             if (!find) throw "Data not found!";
             return { status: true, content: { ...find, index: findIndex } };
+          } catch (error) {
+            return { status: false, content: error };
+          }
+        } else {
+          try {
+            return { status: true, content: data };
+          } catch (error) {
+            return { status: false, content: error };
+          }
+        }
+      },
+      // Read
+      status: async (id) => {
+        if (id) {
+          try {
+            const find = data.find((i) => i.id === id);
+            const findIndex = data.findIndex((i) => i.id === id);
+            if (!find) throw "Data not found!";
+            return find.isAdmin === "TRUE" ? "isAdmin" : find.isStaff === "TRUE" ? "isStaff" : "isMember";
           } catch (error) {
             return { status: false, content: error };
           }

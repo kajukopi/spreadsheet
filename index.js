@@ -24,12 +24,12 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(
   session({
-    secret: "your_secret_key",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
-      // maxAge: 6 * 60 * 60 * 1000,
-      maxAge: 60 * 1000,
+      maxAge: 6 * 60 * 60 * 1000,
+      // maxAge: 60 * 1000,
     },
   })
 );

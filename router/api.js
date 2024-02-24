@@ -2,9 +2,10 @@ const { Router } = require("express");
 const router = Router();
 const { doc, drive } = require("../auth/google");
 const { sheets, getDataForPage, getId } = require("../converter/tab");
+const { middleWare, isAdmin } = require("../middleware");
 
 // Get All
-router.get("/:col", async (req, res) => {
+router.get("/:col", isAdmin, async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
@@ -15,8 +16,7 @@ router.get("/:col", async (req, res) => {
     const result = await read;
     const pages = parseInt(req.query.page) || 1;
     const totalPages = Math.ceil(result.content.length / 5);
-    if (pages < 1 || pages > totalPages)
-      throw { status: false, content: "Page not found" };
+    if (pages < 1 || pages > totalPages) throw { status: false, content: "Page not found" };
     result.content = await getDataForPage(pages, result);
     result.pagination = {
       page: parseInt(req.query.page) || 1,
@@ -31,7 +31,7 @@ router.get("/:col", async (req, res) => {
 });
 
 // Get With Id
-router.get("/:col/:id", async (req, res) => {
+router.get("/:col/:id", isAdmin, async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
@@ -47,17 +47,16 @@ router.get("/:col/:id", async (req, res) => {
 });
 
 // POST
-router.post("/:col", async (req, res) => {
+router.post("/:col", isAdmin, async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
     const sheet = doc.sheetsByTitle[col];
     const rows = await sheets(sheet);
     if (rows.status === false) throw rows;
-    const create = rows.create(
-      col.toUpperCase() + "-" + getId("1234567890", 8),
-      req.body
-    );
+    const create = req?.query?.push
+      ? rows.push(col.toUpperCase() + "-" + getId("1234567890", 8), req.body)
+      : rows.create(col.toUpperCase() + "-" + getId("1234567890", 8), req.body);
     const result = await create;
     res.status(200).json(result);
   } catch (error) {
@@ -66,7 +65,7 @@ router.post("/:col", async (req, res) => {
 });
 
 // UPDATE
-router.put("/:col/:id", async (req, res) => {
+router.put("/:col/:id", isAdmin, async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();
@@ -83,7 +82,7 @@ router.put("/:col/:id", async (req, res) => {
 });
 
 // DELETE
-router.delete("/:col/:id", async (req, res) => {
+router.delete("/:col/:id", isAdmin, async (req, res) => {
   try {
     const col = req.params.col;
     await doc.loadInfo();

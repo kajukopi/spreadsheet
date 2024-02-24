@@ -19,7 +19,8 @@ router.post("/login", async (req, res) => {
     const match = await bcrypt.compare(req.body.password, result.content[0].password);
     if (!match) throw { status: false, content: "Username and Password not match!" };
     req.session.isLoggedIn = true;
-    return res.status(200).json({ status: true, content: "You are logged in!" });
+    req.session.uid = result.content[0].id;
+    return res.status(200).json({ status: true, content: "You are logged in!", uid: result.content[0].id });
   } catch (error) {
     return res.status(400).json(error);
   }
@@ -51,8 +52,8 @@ router.put("/logout/:id", async (req, res) => {
     if (rows.status === false) throw rows;
     const read = rows.read(req.params.id);
     const result = await read;
-    console.log(result);
     if (result.status === false) throw result;
+    req.session.isLoggedIn = false;
     return res.status(200).json({ status: true, content: "Successfully logout!" });
   } catch (error) {
     return res.status(400).json(error);
