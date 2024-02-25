@@ -3,9 +3,9 @@ const session = require("express-session");
 const cors = require("cors");
 const { isAdmin, middleWare } = require("./middleware");
 const app = express();
-const port = 3000 || process.env.PORT;
+const port = 8080 || process.env.PORT;
 
-const whitelist = ["http://localhost:3000", "https://teamkece.com"];
+const whitelist = ["http://localhost:8080", "https://teamkece.com"];
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1 || !origin) {
@@ -29,7 +29,6 @@ app.use(
     saveUninitialized: true,
     cookie: {
       maxAge: 6 * 60 * 60 * 1000,
-      // maxAge: 60 * 1000,
     },
   })
 );
