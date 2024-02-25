@@ -1,15 +1,13 @@
 const { Router } = require("express");
 const bcrypt = require("bcrypt");
-const { doc, drive } = require("../auth/google");
-const { sheets, getDataForPage, getId } = require("../converter/tab");
-const { isAdmin } = require("../middleware");
+const { doc } = require("../auth/google");
+const { sheets, getId } = require("../converter/tab");
 
 const router = Router();
 
 router.post("/login", async (req, res) => {
   try {
     if (req.session.isLoggedIn) throw { status: true, content: "Already logged in!" };
-    const { username, password } = req.body;
     await doc.loadInfo();
     const docUsers = doc.sheetsByTitle["users"];
     const rows = await sheets(docUsers);

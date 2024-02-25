@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const router = Router();
-const { doc, drive } = require("../auth/google");
+const { doc } = require("../auth/google");
 const { sheets, getDataForPage, getId } = require("../converter/tab");
 
 // Get All
@@ -15,7 +15,7 @@ router.get("/:col", async (req, res) => {
     const result = await read;
     const pages = parseInt(req.query.page) || 1;
     const totalPages = Math.ceil(result.content.length / 5);
-    if (pages < 1 || pages > totalPages) throw { status: false, content: "Page not found" };
+    if (pages < 1 || pages > totalPages) throw { status: false, content: [], message: "Page not found" };
     result.content = await getDataForPage(pages, result);
     result.pagination = {
       page: parseInt(req.query.page) || 1,
